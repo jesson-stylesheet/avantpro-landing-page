@@ -7,40 +7,29 @@ body {
 }
 
 #container {
-    position: absolute;
+    position: fixed; /* Changed from absolute to fixed */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
+    z-index: 1; /* Ensure canvas is on top */
 }
 
 .content {
+    position: absolute;
+    width: 100%;
+    bottom: 15%; /* Position text lower on the screen */
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
     text-align: center;
+    z-index: 2; /* Ensure text is above the canvas */
+    pointer-events: none; /* Allow mouse events to pass through to the canvas */
 }
 
-.logo {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.logo svg {
-    margin-right: 15px;
-}
-
-.logo h1 {
-    font-size: 4em;
-    font-weight: bold;
-    color: #FFFFFF;
-    margin: 0;
-    letter-spacing: 5px;
-}
 
 h2 {
     font-size: 2.5em;
