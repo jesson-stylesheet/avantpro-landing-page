@@ -1,38 +1,32 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { SVGLoader } from 'three/addons/loaders/SVGLoader.js';
+// Note: The 'import' statements have been removed.
+// THREE, OrbitControls, and SVGLoader are now available globally from the script tags in index.html
 
 // --- Scene Setup ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-camera.position.z = 500; // Adjusted camera position
+camera.position.z = 500;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('container').appendChild(renderer.domElement);
 
-
 // --- Lighting ---
-// Soft white light
 scene.add(new THREE.AmbientLight(0x404040, 2));
-// Directional light to create highlights
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
 directionalLight.position.set(1, 1, 1);
 scene.add(directionalLight);
 
-
 // --- Controls ---
-const controls = new OrbitControls(camera, renderer.domElement);
+// OrbitControls is now accessed via the global THREE object
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
 controls.screenSpacePanning = false;
-controls.enableZoom = false; // Disable zoom to keep logo size consistent
-controls.autoRotate = true; // Add a slow automatic rotation
+controls.enableZoom = false;
+controls.autoRotate = true;
 controls.autoRotateSpeed = 0.5;
 
-
 // --- Metallic 3D Logo ---
-// SVG path data from your logo file, now wrapped in an SVG tag
 const svgMarkup = `
 <svg version="1.0" xmlns="http://www.w3.org/2000/svg"
      viewBox="0 0 488.000000 511.000000"
@@ -41,22 +35,21 @@ const svgMarkup = `
 </svg>
 `;
 
-const loader = new SVGLoader();
+// SVGLoader is now accessed via the global THREE object
+const loader = new THREE.SVGLoader();
 const svgData = loader.parse(svgMarkup);
 
-// Material for the logo with a shiny, metallic finish
 const material = new THREE.MeshStandardMaterial({
-    color: 0xCCCCCC, // A light silver color
-    metalness: 1.0,   // Fully metallic
-    roughness: 0.2,   // A little bit of roughness to diffuse reflections
+    color: 0xCCCCCC,
+    metalness: 1.0,
+    roughness: 0.2,
     side: THREE.DoubleSide
 });
 
-// Create shapes and extrude them to form the 3D logo
 const shapes = svgData.paths[0].toShapes(true);
 
 const extrudeSettings = {
-    depth: 50, // How thick the logo is
+    depth: 50,
     bevelEnabled: true,
     bevelThickness: 5,
     bevelSize: 2,
@@ -65,21 +58,19 @@ const extrudeSettings = {
 };
 
 const geometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
-geometry.center(); // Center the geometry for easy rotation
+geometry.center();
 
 const mesh = new THREE.Mesh(geometry, material);
-// Scale and rotate to orient correctly
-mesh.scale.y *= -1; // Correct the SVG's coordinate system
+mesh.scale.y *= -1;
 mesh.scale.multiplyScalar(0.5);
 scene.add(mesh);
 
-// --- Background Particles (kept from previous version) ---
+// --- Background Particles ---
 const particlesGeometry = new THREE.BufferGeometry;
 const particlesCount = 8000;
 const posArray = new Float32Array(particlesCount * 3);
-
 for (let i = 0; i < particlesCount * 3; i++) {
-    posArray[i] = (Math.random() - 0.5) * 2000; // Spread particles out more
+    posArray[i] = (Math.random() - 0.5) * 2000;
 }
 particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 const particlesMaterial = new THREE.PointsMaterial({ size: 0.5, color: 0xC09E50 });
@@ -90,22 +81,15 @@ scene.add(particlesMesh);
 gsap.to('h2', { duration: 1.5, opacity: 1, y: 0, delay: 0.5, ease: 'power2.out' });
 gsap.to('p', { duration: 1.5, opacity: 1, y: 0, delay: 1, ease: 'power2.out' });
 
-
 // --- Animation Loop ---
 function animate() {
     requestAnimationFrame(animate);
-
-    // Update controls for damping and auto-rotation
     controls.update();
-
-    // Rotate background particles slowly
     particlesMesh.rotation.x += 0.0001;
     particlesMesh.rotation.y += 0.0002;
-
     renderer.render(scene, camera);
 }
 animate();
-
 
 // --- Handle Window Resize ---
 window.addEventListener('resize', () => {
