@@ -10,22 +10,18 @@
 <body>
     <div id="container"></div>
     <div class="content">
-        <!-- Logo is now rendered by three.js -->
+        <!-- Logo is rendered by three.js -->
         <h2>Coming Soon</h2>
         <p>Anytime. Anywear.</p>
     </div>
 
-    <!-- Import map for three.js modules -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.module.js",
-                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/"
-            }
-        }
-    </script>
-
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
-    <script type="module" src="js/script.js"></script>
+    
+    <!-- Main Script -->
+    <script src="js/script.js"></script>
 </body>
 </html>
