@@ -1,6 +1,3 @@
-// Note: The 'import' statements have been removed.
-// THREE, OrbitControls, and SVGLoader are now available globally from the script tags in index.html
-
 // --- Scene Setup ---
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -11,10 +8,14 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.getElementById('container').appendChild(renderer.domElement);
 
 // --- Lighting ---
-scene.add(new THREE.AmbientLight(0x404040, 2));
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-directionalLight.position.set(1, 1, 1);
-scene.add(directionalLight);
+scene.add(new THREE.AmbientLight(0xcccccc, 0.8)); // Adjusted ambient light
+const pointLight = new THREE.PointLight(0xffffff, 0.8);
+pointLight.position.set(200, 200, 500);
+scene.add(pointLight);
+const pointLight2 = new THREE.PointLight(0xffffff, 0.5);
+pointLight2.position.set(-200, -200, -500);
+scene.add(pointLight2);
+
 
 // --- Controls ---
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
@@ -23,7 +24,7 @@ controls.dampingFactor = 0.05;
 controls.screenSpacePanning = false;
 controls.enableZoom = false;
 controls.autoRotate = true;
-controls.autoRotateSpeed = 0.5;
+controls.autoRotateSpeed = 0.75;
 
 // --- Metallic 3D Logo ---
 const svgMarkup = `
@@ -45,37 +46,41 @@ const material = new THREE.MeshStandardMaterial({
 });
 
 const extrudeSettings = {
-    depth: 50,
+    depth: 40,
     bevelEnabled: true,
-    bevelThickness: 5,
-    bevelSize: 2,
-    bevelOffset: 0,
-    bevelSegments: 5
+    bevelThickness: 2,
+    bevelSize: 1,
+    bevelSegments: 2
 };
 
-// Create a group to hold all the parts of the logo
-const logoGroup = new THREE.Group();
-logoGroup.scale.multiplyScalar(0.5);
-logoGroup.scale.y *= -1; // Correct the SVG's coordinate system
+const group = new THREE.Group();
+const paths = svgData.paths;
 
-// Iterate through all paths from the SVG
-svgData.paths.forEach((path) => {
-    const shapes = path.toShapes(true);
+for (let i = 0; i < paths.length; i++) {
+    const path = paths[i];
+    const shapes = THREE.SVGLoader.createShapes(path);
 
-    // Each path can generate multiple shapes
-    shapes.forEach((shape) => {
+    for (let j = 0; j < shapes.length; j++) {
+        const shape = shapes[j];
         const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
         const mesh = new THREE.Mesh(geometry, material);
-        logoGroup.add(mesh);
-    });
-});
+        group.add(mesh);
+    }
+}
 
-// After adding all parts, calculate the bounding box and center the group
-const box = new THREE.Box3().setFromObject(logoGroup);
+// Center the group based on its bounding box
+const box = new THREE.Box3().setFromObject(group);
 const center = box.getCenter(new THREE.Vector3());
-logoGroup.position.sub(center); // Center the group at the origin
+group.position.copy(center).negate();
 
-scene.add(logoGroup);
+// Scale the group to a manageable size in the scene
+const size = box.getSize(new THREE.Vector3());
+const maxDim = Math.max(size.x, size.y);
+const desiredSize = 350;
+const scale = desiredSize / maxDim;
+group.scale.set(scale, -scale, scale); // Flip Y-axis during scaling
+
+scene.add(group);
 
 
 // --- Background Particles ---
@@ -88,6 +93,7 @@ for (let i = 0; i < particlesCount * 3; i++) {
 particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 const particlesMaterial = new THREE.PointsMaterial({ size: 0.5, color: 0xC09E50 });
 const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+particlesMesh.position.z = -500; // Push particles back
 scene.add(particlesMesh);
 
 // --- GSAP Animations for Text ---
