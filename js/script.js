@@ -17,7 +17,6 @@ directionalLight.position.set(1, 1, 1);
 scene.add(directionalLight);
 
 // --- Controls ---
-// OrbitControls is now accessed via the global THREE object
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
@@ -35,7 +34,6 @@ const svgMarkup = `
 </svg>
 `;
 
-// SVGLoader is now accessed via the global THREE object
 const loader = new THREE.SVGLoader();
 const svgData = loader.parse(svgMarkup);
 
@@ -46,8 +44,6 @@ const material = new THREE.MeshStandardMaterial({
     side: THREE.DoubleSide
 });
 
-const shapes = svgData.paths[0].toShapes(true);
-
 const extrudeSettings = {
     depth: 50,
     bevelEnabled: true,
@@ -57,13 +53,30 @@ const extrudeSettings = {
     bevelSegments: 5
 };
 
-const geometry = new THREE.ExtrudeGeometry(shapes, extrudeSettings);
-geometry.center();
+// Create a group to hold all the parts of the logo
+const logoGroup = new THREE.Group();
+logoGroup.scale.multiplyScalar(0.5);
+logoGroup.scale.y *= -1; // Correct the SVG's coordinate system
 
-const mesh = new THREE.Mesh(geometry, material);
-mesh.scale.y *= -1;
-mesh.scale.multiplyScalar(0.5);
-scene.add(mesh);
+// Iterate through all paths from the SVG
+svgData.paths.forEach((path) => {
+    const shapes = path.toShapes(true);
+
+    // Each path can generate multiple shapes
+    shapes.forEach((shape) => {
+        const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        const mesh = new THREE.Mesh(geometry, material);
+        logoGroup.add(mesh);
+    });
+});
+
+// After adding all parts, calculate the bounding box and center the group
+const box = new THREE.Box3().setFromObject(logoGroup);
+const center = box.getCenter(new THREE.Vector3());
+logoGroup.position.sub(center); // Center the group at the origin
+
+scene.add(logoGroup);
+
 
 // --- Background Particles ---
 const particlesGeometry = new THREE.BufferGeometry;
