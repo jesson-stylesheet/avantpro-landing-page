@@ -76,7 +76,7 @@ group.position.copy(center).negate();
 // Scale the group to a manageable size in the scene
 const size = box.getSize(new THREE.Vector3());
 const maxDim = Math.max(size.x, size.y);
-const desiredSize = 350;
+const desiredSize = 250; // <-- Changed this value from 350 to 250
 const scale = desiredSize / maxDim;
 group.scale.set(scale, -scale, scale); // Flip Y-axis during scaling
 
