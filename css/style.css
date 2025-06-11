@@ -1,3 +1,8 @@
+/* Define the fill color as a CSS variable at the root level */
+:root {
+    --logo-color: #C09E50;
+}
+
 body {
     margin: 0;
     font-family: 'Century Gothic', sans-serif;
@@ -43,9 +48,10 @@ body {
     display: block;
     width: 100%;
     height: auto;
-    /* --- The Fix --- */
-    /* Define the fill color as a CSS variable for the SVG to use */
-    --logo-color: #CCCCCC; 
+}
+
+.logo path {
+    fill: var(--logo-color);
 }
 
 /* The animated shine effect */
