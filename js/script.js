@@ -68,7 +68,6 @@ function createLogo() {
     logoGroup.position.copy(center).negate();
     
     logoGroup.scale.set(0.5, -0.5, 0.5); // Set a fixed, predictable scale
-    logoGroup.position.y = 50; // Position it slightly above the center
     
     scene.add(logoGroup);
 }
