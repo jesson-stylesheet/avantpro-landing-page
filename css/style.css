@@ -43,14 +43,10 @@ body {
     display: block;
     width: 100%;
     height: auto;
+    /* --- The Fix --- */
+    /* Define the fill color as a CSS variable for the SVG to use */
+    --logo-color: #CCCCCC; 
 }
-
-/* --- The Fix --- */
-/* Target the path INSIDE the SVG and apply the fill color */
-.logo path {
-    fill: #CCCCCC; /* A base silver/metallic color */
-}
-
 
 /* The animated shine effect */
 .logo-wrapper::after {
