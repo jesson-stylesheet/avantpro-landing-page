@@ -6,31 +6,21 @@ body {
     overflow: hidden;
 }
 
-/* Container for the background particles */
-#bg-container {
+/* Single container for the 3D scene */
+#scene-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: 1;
-}
-
-/* Container for the 3D logo */
-#logo-container {
-    position: fixed;
-    top: 20%; /* Position logo a bit higher than center */
-    left: 50%;
-    transform: translateX(-50%);
-    width: 400px;
-    height: 400px;
-    z-index: 2;
     cursor: grab;
 }
 
-#logo-container:active {
+#scene-container:active {
     cursor: grabbing;
 }
+
 
 /* Container for the text content */
 .content {
@@ -44,8 +34,8 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 3;
-    pointer-events: none; /* Allow clicks to go through to the logo */
+    z-index: 2; /* Position text above the 3D scene */
+    pointer-events: none; /* Allow mouse events to pass through to the canvas */
 }
 
 h2 {
