@@ -48,8 +48,9 @@ body {
     height: 100%;
 }
 
+/* Remove any fill overrides for the logo path */
 .logo path {
-    fill: var(--logo-color);
+    /* Remove the fill property to allow the gradient to work */
 }
 
 h2 {

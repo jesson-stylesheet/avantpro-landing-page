@@ -43,16 +43,6 @@ function init() {
         repeat: -1,
         ease: 'none'
     });
-
-    // Logo animation
-    const logoPath = document.querySelector('.logo-path');
-    gsap.to(logoPath, {
-        opacity: 0.1,
-        duration: 2.5,
-        repeat: -1,
-        yoyo: true,
-        ease: "power1.inOut"
-    });
 }
 
 
