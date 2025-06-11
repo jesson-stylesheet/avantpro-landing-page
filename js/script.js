@@ -54,20 +54,30 @@ function createLogo() {
     const extrudeSettings = { depth: 40, bevelEnabled: true, bevelThickness: 2, bevelSize: 1, bevelSegments: 2 };
 
     logoGroup = new THREE.Group();
+    const tempGroup = new THREE.Group(); // Use a temporary group to measure the logo
+
     svgData.paths.forEach(path => {
         const shapes = THREE.SVGLoader.createShapes(path);
         shapes.forEach(shape => {
             const geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
             const mesh = new THREE.Mesh(geometry, material);
-            logoGroup.add(mesh);
+            tempGroup.add(mesh);
         });
     });
 
-    const box = new THREE.Box3().setFromObject(logoGroup);
+    // After creating all meshes, calculate the true center of the entire logo
+    const box = new THREE.Box3().setFromObject(tempGroup);
     const center = box.getCenter(new THREE.Vector3());
-    logoGroup.position.copy(center).negate();
-    
-    logoGroup.scale.set(0.5, -0.5, 0.5); // Set a fixed, predictable scale
+
+    // Re-process the meshes, but this time translate the geometry of each part
+    // This moves the vertices of the geometry, effectively centering the object around its local origin
+    tempGroup.children.forEach(mesh => {
+        mesh.geometry.translate(-center.x, -center.y, -center.z);
+        logoGroup.add(mesh.clone()); // Add a clone to the final group
+    });
+
+    // Now logoGroup is geometrically centered around its own origin (0,0,0)
+    logoGroup.scale.set(0.5, -0.5, 0.5); 
     
     scene.add(logoGroup);
 }
