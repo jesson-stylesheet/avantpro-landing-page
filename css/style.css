@@ -6,7 +6,7 @@ body {
     overflow: hidden;
 }
 
-/* Single container for the 3D scene */
+/* Container for the background particles */
 #scene-container {
     position: fixed;
     top: 0;
@@ -14,29 +14,68 @@ body {
     width: 100%;
     height: 100%;
     z-index: 1;
-    cursor: grab;
 }
 
-#scene-container:active {
-    cursor: grabbing;
-}
-
-
-/* Container for the text content */
+/* Container for all centered content */
 .content {
     position: absolute;
-    width: 100%;
-    bottom: 15%;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    z-index: 2; /* Position text above the 3D scene */
-    pointer-events: none; /* Allow mouse events to pass through to the canvas */
+    z-index: 2; 
 }
+
+/* Wrapper for the logo to apply the shine effect */
+.logo-wrapper {
+    position: relative; /* Needed for the pseudo-element */
+    width: 250px; /* Control the logo size here */
+    margin-bottom: 40px;
+    overflow: hidden; /* Keeps the shine within the logo's bounds */
+}
+
+/* The SVG logo itself */
+.logo {
+    display: block;
+    width: 100%;
+    height: auto;
+    /* The base metallic look */
+    background: linear-gradient(45deg, #999 5%, #fff 10%, #ccc 30%, #ddd 50%, #ccc 70%, #fff 80%, #999 95%);
+    border-radius: 10px; /* Soften the edges slightly */
+}
+
+/* The animated shine effect */
+.logo-wrapper::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 5s ease-in-out infinite;
+}
+
+/* Keyframe animation for the shine */
+@keyframes shine {
+    0% {
+        transform: translate(-50%, -50%) rotate(45deg);
+    }
+    100% {
+        transform: translate(50%, 50%) rotate(45deg);
+    }
+}
+
 
 h2 {
     font-size: 2.5em;
