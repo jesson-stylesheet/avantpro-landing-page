@@ -40,14 +40,14 @@ body {
     border: 1px solid rgba(37, 46, 69, 0.8);
     backdrop-filter: blur(8px); /* Glass morphism effect */
     -webkit-backdrop-filter: blur(8px);
-    border-radius: 100px;
+    border-radius: 10px;
     display: flex;
     z-index: 100; /* Sits on top of all content */
     padding: 4px; 
 }
 
 .top-nav a {
-    border-radius: 100px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -55,8 +55,8 @@ body {
     position: relative;
     margin: 0 4px; 
     overflow: hidden;
-    width: 44px;  
-    height: 44px; 
+    width: 56px;  
+    height: 40px; 
     box-sizing: border-box;
     transition: background-color 0.2s ease;
 }
@@ -107,7 +107,7 @@ body {
     bottom: -15px;
     font-family: "Century Gothic", sans-serif;
     font-weight: 400;
-    font-size: 0.7rem; 
+    font-size: 0.4rem; 
     opacity: 0;
     z-index: 1;
     transition: bottom 200ms ease, opacity 200ms ease;
@@ -165,9 +165,9 @@ body {
 }
 
 .logo-wrapper {
-    width: 150px;
+    width: 300px;
     height: auto;
-    margin: 0 auto 2rem;
+    margin: 44px auto 2rem;
 }
 
 .logo {
@@ -328,7 +328,7 @@ h2 {
 }
 
 .footer-logo img {
-    max-width: 250px;
+    max-width: 200px;
     height: auto;
     margin-bottom: 1rem;
 }
@@ -361,7 +361,7 @@ h2 {
 @media (max-width: 600px) {
     h2 { font-size: 1.8rem; }
     .content > p { font-size: 1rem; }
-    .logo-wrapper { width: 120px; }
+    .logo-wrapper { width: 224px; margin-top: 44px;}
     
     .carousel-container {
         width: 70vw;
