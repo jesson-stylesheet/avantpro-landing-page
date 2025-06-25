@@ -1,0 +1,6 @@
+# Allow all search engine bots to crawl the site.
+User-agent: *
+Allow: /
+
+# Provide the location of the sitemap.
+Sitemap: https://avantpro.net/sitemap.xml
