@@ -35,6 +35,7 @@ body {
     position: fixed;
     top: 20px;
     left: 50%;
+    gap: 8px;
     transform: translateX(-50%);
     background-color: rgba(26, 32, 48, 0.7); /* Semi-transparent background */
     border: 1px solid rgba(37, 46, 69, 0.8);
@@ -53,7 +54,8 @@ body {
     justify-content: center;
     text-decoration: none;
     position: relative;
-    margin: 0 4px; 
+    margin: 4px 4px; 
+    padding: 0 0 8px;
     overflow: hidden;
     width: 56px;  
     height: 40px; 
@@ -82,12 +84,12 @@ body {
 
 /* Default state for icon strokes */
 .top-nav .icon svg path, .top-nav .icon svg line, .top-nav .icon svg rect, .top-nav .icon svg circle {
-    stroke: #fff;
+    stroke: #f0f0f0;
 }
 
 /* Default state for home icon (which uses fill) */
 .top-nav a .icon svg g {
-     fill: #fff;
+     fill: #f0f0f0;
 }
 
 /* Active state for home icon */
@@ -102,7 +104,7 @@ body {
 
 /* Style for the text labels on nav items */
 .top-nav .label {
-    color: #fff;
+    color: #f0f0f0;
     position: absolute;
     bottom: -15px;
     font-family: "Century Gothic", sans-serif;
@@ -127,11 +129,11 @@ body {
 
 /* Colors for the animated rectangles */
 .top-nav svg .gold rect {
-    fill: var(--logo-color);
+    fill: var(--accent-color);
 }
 
 .top-nav svg .teal rect {
-    fill: var(--accent-color);
+    fill: #f0f0f0;
     mix-blend-mode: color-dodge; /* Creates a nice color blend effect */
 }
 
@@ -139,6 +141,7 @@ body {
 .top-nav a.active .label {
     bottom: 2px;
     opacity: 1;
+    color: var(--logo-color);
 }
 
 /* ====== Main Content ====== */
@@ -151,7 +154,7 @@ body {
     width: 100%;
     position: relative;
     z-index: 3; /* Above background and footer, below nav */
-    padding: 120px 1rem 0 1rem;
+    padding: 120px 1rem 120px 1rem;
     box-sizing: border-box;
 }
 
@@ -161,7 +164,7 @@ body {
     justify-content: center;
     align-items: center;
     text-align: center;
-    margin-bottom: 5rem;
+    margin-bottom: 6rem;
 }
 
 .logo-wrapper {
@@ -186,7 +189,7 @@ h2 {
 .content > p {
     font-size: 1.1rem;
     margin-top: 10px;
-    color: #FFFFFF;
+    color: #F0F0F0;
     opacity: 0;
     transform: translateY(20px);
 }
@@ -301,7 +304,7 @@ h2 {
     position: relative; 
     z-index: 2; 
     width: 100%;
-    padding: 2rem 0;
+    padding: 3rem 0;
     background-color: rgba(20, 20, 20, 0.4);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -335,7 +338,7 @@ h2 {
 
 .footer-social p { margin: 0 0 1rem 0; font-weight: bold; }
 .footer-social .social-icons { display: flex; gap: 1rem; }
-.footer-social .social-icons a { color: #fff; transition: color 0.3s ease; }
+.footer-social .social-icons a { color: #f0f0f0; transition: color 0.3s ease; }
 .footer-social .social-icons a:hover { color: var(--logo-color); }
 .footer-social .social-icons svg { width: 24px; height: 24px; }
 .footer-links ul, .footer-legal ul { list-style: none; padding: 0; margin: 0; }
