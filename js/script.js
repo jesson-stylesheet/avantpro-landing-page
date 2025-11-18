@@ -103,10 +103,14 @@ class NavigationEffect {
         // Add click listeners to all navigation links
         this.anchors.forEach((anchor) => {
             anchor.addEventListener("click", (e) => {
-                e.preventDefault();
-                if (this.current === anchor) return; // Do nothing if already active
-                this.handlePrevious(); // Animate out the previous item
-                this.handleCurrent(anchor, true); // Animate in the new item
+                // Only prevent default for internal links (href="#"), allow external links to navigate
+                if (anchor.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    if (this.current === anchor) return; // Do nothing if already active
+                    this.handlePrevious(); // Animate out the previous item
+                    this.handleCurrent(anchor, true); // Animate in the new item
+                }
+                // For external links, let the default behavior happen (navigation)
             });
         });
     }
