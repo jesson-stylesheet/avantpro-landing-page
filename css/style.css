@@ -17,7 +17,8 @@ body {
     font-family: 'Century Gothic', sans-serif;
     background-color: #000000;
     color: #FFFFFF;
-    overflow-x: hidden;
+    overflow-x: clip;
+    /* clip prevents scrollbars without breaking position: sticky on children */
     display: flex;
     flex-direction: column;
     /* Allows for sticky footer */
@@ -473,50 +474,120 @@ h2 {
     line-height: 1.6;
 }
 
-/* ====== Lookbook Styles ====== */
-.lookbook-container {
-    max-width: 1200px;
-    width: 90vw;
-    margin: 4rem auto;
+/* ====== Lookbook Styles (Sticky Grid Scroll) ====== */
+.block {
+    position: relative;
+    height: 400vh;
+    /* Long scroll distance for GSAP timeline */
+    width: 100%;
 }
 
-.lookbook-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 3rem;
-    padding: 2rem 0;
+.block__wrapper {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    /* Ensure it stays above particle background */
+}
+
+/* Visibility classes for GSAP */
+.opacity-zero {
+    opacity: 0;
+}
+
+.content-lookbook {
+    position: absolute;
+    z-index: 10;
+    text-align: center;
+    max-width: 600px;
+    padding: 0 20px;
+}
+
+.content__title {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+.content__description {
+    font-size: 1.2rem;
+    color: #cccccc;
+    margin-bottom: 2rem;
+}
+
+.content__button {
+    background-color: var(--logo-color);
+    color: #111;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.content__button:hover {
+    background-color: #ffffff;
+}
+
+.gallery {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    pointer-events: none;
+    /* Let clicks pass through empty space to background/particles */
+}
+
+.gallery__grid {
+    display: flex;
+    justify-content: center;
+    gap: 3vw;
+    height: 100%;
+    padding: 10vh 0;
+    list-style: none;
+    margin: 0;
+}
+
+.gallery__column {
+    display: flex;
+    flex-direction: column;
+    gap: 3vw;
+    width: 25vw;
+}
+
+.gallery__item {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    /* Consistent image block sizing */
 }
 
 .lookbook-frame {
-    height: 450px;
+    width: 100%;
+    height: 100%;
     background-color: #333333;
     /* Grey placeholder */
     background-size: cover;
     background-position: center;
-    border-radius: 12px;
-    position: relative;
+    border-radius: 8px;
     overflow: hidden;
-    /* Remove the default glass panel hover transform to not conflict with GSAP parallax */
-    transition: box-shadow 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.lookbook-frame:hover {
-    transform: none;
-    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
-}
-
-/* Inner element for GSAP parallax */
-.lookbook-frame-inner {
-    position: absolute;
-    top: -20%;
-    /* Extend past the bounds for parallax room */
-    left: 0;
-    width: 100%;
-    height: 140%;
-    background-color: #444444;
-    /* Slightly lighter inner placeholder */
-    background-size: cover;
-    background-position: center;
+/* Empty frame to allow text to bleed through the middle */
+.empty-frame {
+    background: transparent;
+    border: none;
+    box-shadow: none !important;
 }
 
 /* ====== Footer Styles ====== */
