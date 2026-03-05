@@ -17,7 +17,7 @@ function initParticles() {
     if (container) {
         // 1. Scene Setup: The container for all 3D objects.
         scene = new THREE.Scene();
-        
+
         // 2. Camera Setup: Defines the perspective from which we view the scene.
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
         camera.position.z = 800; // Move camera back to see the particles
@@ -27,10 +27,10 @@ function initParticles() {
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
-        
+
         // 4. Create the particles and add them to the scene.
         createParticles();
-        
+
         // 5. Event Listener: Resize the canvas when the window is resized.
         window.addEventListener('resize', onWindowResize, false);
     }
@@ -45,12 +45,12 @@ function createParticles() {
 
     // Randomly position each particle in a large cube
     for (let i = 0; i < particlesCount * 3; i++) {
-        posArray[i] = (Math.random() - 0.5) * 2500; 
+        posArray[i] = (Math.random() - 0.5) * 2500;
     }
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-    
+
     // Define the material (appearance) of the particles
-    const particlesMaterial = new THREE.PointsMaterial({ size: 1.0, color: 0xC09E50 });
+    const particlesMaterial = new THREE.PointsMaterial({ size: 1.0, color: 0xE0E0E0 });
     particles = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);
 }
@@ -77,7 +77,7 @@ function animateParticles() {
         particles.rotation.x += 0.00005;
         particles.rotation.y += 0.0001;
     }
-    if(renderer && scene && camera) {
+    if (renderer && scene && camera) {
         renderer.render(scene, camera);
     }
 }
@@ -98,7 +98,7 @@ class NavigationEffect {
         this.previous = null;
 
         // Set initial state without animation
-        if(this.current) this.handleCurrent(this.current, false);
+        if (this.current) this.handleCurrent(this.current, false);
 
         // Add click listeners to all navigation links
         this.anchors.forEach((anchor) => {
@@ -125,7 +125,7 @@ class NavigationEffect {
         this.current.classList.add("active");
         const nodes = this.getNodes(this.current);
 
-        if(!animate) return; // Skip animation on initial load
+        if (!animate) return; // Skip animation on initial load
 
         // Animate the gold and teal rectangles up with an elastic ease
         gsap.to(nodes.gold, {
@@ -191,3 +191,47 @@ class NavigationEffect {
 document.addEventListener("DOMContentLoaded", () => {
     new NavigationEffect(document.querySelector(".top-nav"));
 });
+
+// --- SCROLLTRIGGER EVENTS --- //
+if (typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const eventPosts = document.querySelectorAll('.event-post');
+    if (eventPosts.length > 0) {
+        eventPosts.forEach((post) => {
+            gsap.to(post, {
+                scrollTrigger: {
+                    trigger: post,
+                    start: "top 85%", // Animation starts when top of post hits 85% of viewport
+                    toggleActions: "play none none reverse" // Play on enter, reverse on leave back
+                },
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "power2.out"
+            });
+            // Initial state for animation
+            gsap.set(post, { y: 50, opacity: 0 });
+        });
+    }
+
+    // Parallax effect for lookbook frames
+    const lookbookFrames = document.querySelectorAll('.lookbook-frame');
+    if (lookbookFrames.length > 0) {
+        lookbookFrames.forEach((frame) => {
+            const inner = frame.querySelector('.lookbook-frame-inner');
+            if (inner) {
+                gsap.to(inner, {
+                    yPercent: 30, // Move down slightly as we scroll down
+                    ease: "none",
+                    scrollTrigger: {
+                        trigger: frame,
+                        start: "top bottom", // Start when top of frame hits bottom of viewport
+                        end: "bottom top",   // End when bottom of frame hits top of viewport
+                        scrub: true          // Smoothly link to scroll position
+                    }
+                });
+            }
+        });
+    }
+}
