@@ -40,7 +40,11 @@ function initParticles() {
  */
 function createParticles() {
     const particlesGeometry = new THREE.BufferGeometry();
-    const particlesCount = 8000; // Number of particles
+
+    // Default to a smaller particle count for mobile
+    const isMobile = window.innerWidth < 768;
+    const particlesCount = isMobile ? 2000 : 8000;
+
     const posArray = new Float32Array(particlesCount * 3); // Each particle has x, y, z coordinates
 
     // Randomly position each particle in a large cube
@@ -72,8 +76,11 @@ function onWindowResize() {
  */
 function animateParticles() {
     requestAnimationFrame(animateParticles);
-    if (particles) {
-        // Gently rotate the particle system
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (particles && !prefersReducedMotion) {
+        // Gently rotate the particle system only if reduced motion is not preferred
         particles.rotation.x += 0.00005;
         particles.rotation.y += 0.0001;
     }
