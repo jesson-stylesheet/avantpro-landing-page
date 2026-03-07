@@ -43,7 +43,7 @@ function createParticles() {
 
     // Default to a smaller particle count for mobile
     const isMobile = window.innerWidth < 768;
-    const particlesCount = isMobile ? 2000 : 8000;
+    const particlesCount = isMobile ? 4000 : 8000;
 
     const posArray = new Float32Array(particlesCount * 3); // Each particle has x, y, z coordinates
 
@@ -54,7 +54,8 @@ function createParticles() {
     particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
     // Define the material (appearance) of the particles
-    const particlesMaterial = new THREE.PointsMaterial({ size: 1.0, color: 0xE0E0E0 });
+    const particleSize = isMobile ? 3.0 : 1.0;
+    const particlesMaterial = new THREE.PointsMaterial({ size: particleSize, color: 0xE0E0E0 });
     particles = new THREE.Points(particlesGeometry, particlesMaterial);
     scene.add(particles);
 }
