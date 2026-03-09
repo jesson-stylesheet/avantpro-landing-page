@@ -236,95 +236,142 @@ if (typeof ScrollTrigger !== 'undefined') {
         const btn = document.querySelector('.js-btn');
         const wrapper = document.querySelector('.block__wrapper');
 
-        // 1. Setup default state
-        gsap.set([desc, btn], { opacity: 0, pointerEvents: 'none' });
-        gsap.set(title, { yPercent: 100 }); // Title starting position before reveal
+        // Create a matchMedia instance
+        let mm = gsap.matchMedia();
 
-        // Create the main scroll-driven timeline
-        const scrollTimeline = gsap.timeline({
-            scrollTrigger: {
-                trigger: lookbookBlock,
-                start: "top 25%", // Start animation when top of block hits 25% of viewport
-                end: "bottom bottom", // End animation when bottom of block hits bottom of viewport
-                scrub: true, // Smooth animation ties to scroll position
-            }
+        // --------------------------------------------------
+        // DESKTOP & TABLET ANIMATION (min-width: 769px)
+        // --------------------------------------------------
+        mm.add("(min-width: 769px)", () => {
+            // Setup default state
+            gsap.set([desc, btn], { opacity: 0, pointerEvents: 'none' });
+            gsap.set(title, { yPercent: 100 });
+
+            // Create the main scroll-driven timeline
+            const scrollTimeline = gsap.timeline({
+                scrollTrigger: {
+                    trigger: lookbookBlock,
+                    start: "top 25%",
+                    end: "bottom bottom",
+                    scrub: true,
+                }
+            });
+
+            // Grid Reveal Timeline
+            const revealTimeline = gsap.timeline();
+            const dy = window.innerHeight;
+
+            columns.forEach((column, colIndex) => {
+                const fromTop = colIndex % 2 === 0;
+                revealTimeline.from(column.querySelectorAll('.gallery__item'), {
+                    y: dy * (fromTop ? -1 : 1),
+                    stagger: {
+                        each: 0.06,
+                        from: fromTop ? "end" : "start"
+                    },
+                    ease: "power1.inOut"
+                }, "reveal");
+            });
+
+            // Grid Zoom Timeline
+            const zoomTimeline = gsap.timeline({
+                defaults: { duration: 1, ease: "power3.inOut" }
+            });
+
+            zoomTimeline.to(grid, { scale: 2.05 })
+                .to(columns[0], { xPercent: -40 }, "<")
+                .to(columns[2], { xPercent: 40 }, "<")
+                .to(columns[1].querySelectorAll('.gallery__item'), {
+                    yPercent: (index) => (index < Math.floor(columns[1].querySelectorAll('.gallery__item').length / 2) ? -1 : 1) * 40,
+                    duration: 0.5,
+                    ease: "power1.inOut"
+                }, "-=0.5");
+
+            // Content Toggle Timeline
+            const toggleContent = (isVisible) => {
+                gsap.timeline({ defaults: { overwrite: true } })
+                    .to(title, {
+                        yPercent: isVisible ? 0 : 100,
+                        duration: 0.7,
+                        ease: "power2.inOut"
+                    })
+                    .to([desc, btn], {
+                        opacity: isVisible ? 1 : 0,
+                        duration: 0.4,
+                        ease: isVisible ? "power1.inOut" : "power1.out",
+                        pointerEvents: isVisible ? "all" : "none"
+                    }, isVisible ? "-=90%" : "<");
+            };
+
+            // Assemble the Main Timeline
+            scrollTimeline
+                .add(revealTimeline)
+                .add(zoomTimeline, "-=0.6")
+                .add(() => toggleContent(scrollTimeline.scrollTrigger.direction === 1), "-=0.32");
+
+            // Parallax effect for the sticky wrapper
+            gsap.from(wrapper, {
+                yPercent: -100,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: lookbookBlock,
+                    start: "top bottom",
+                    end: "top top",
+                    scrub: true
+                }
+            });
+
+            // Fade in the title contextually
+            gsap.to(content, {
+                opacity: 1,
+                duration: 0.7,
+                ease: "power1.out",
+                scrollTrigger: {
+                    trigger: lookbookBlock,
+                    start: "top 57%",
+                    toggleActions: "play none none reset"
+                }
+            });
+
+            // Cleanup function for when media query doesn't match
+            return () => {
+                // Return elements to normal state when reverting
+                gsap.set([title, desc, btn, content, grid, wrapper], { clearProps: "all" });
+                columns.forEach(col => {
+                    gsap.set(col, { clearProps: "all" });
+                    gsap.set(col.querySelectorAll('.gallery__item'), { clearProps: "all" });
+                });
+            };
         });
 
-        // 2. Grid Reveal Timeline (Move columns into view)
-        const revealTimeline = gsap.timeline();
-        const dy = window.innerHeight; // Distance to start strictly outside viewport
+        // --------------------------------------------------
+        // MOBILE ANIMATION (max-width: 768px)
+        // --------------------------------------------------
+        mm.add("(max-width: 768px)", () => {
+            // Simple fade and slide up for each image as you scroll
+            const items = gsap.utils.toArray('.gallery__item:not(.empty-frame)');
 
-        columns.forEach((column, colIndex) => {
-            const fromTop = colIndex % 2 === 0; // Even columns from top, odd from bottom
-            revealTimeline.from(column.querySelectorAll('.gallery__item'), {
-                y: dy * (fromTop ? -1 : 1),
-                stagger: {
-                    each: 0.06,
-                    from: fromTop ? "end" : "start"
-                },
-                ease: "power1.inOut"
-            }, "reveal");
-        });
+            items.forEach((item) => {
+                // Ensure initial state is set for the reveal
+                gsap.set(item, { opacity: 0, y: 30 });
 
-        // 3. Grid Zoom Timeline (Scale up and spread columns)
-        const zoomTimeline = gsap.timeline({
-            defaults: { duration: 1, ease: "power3.inOut" }
-        });
+                gsap.to(item, {
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 85%", // Trigger when top of image is 85% down viewport
+                        toggleActions: "play none none reverse"
+                    },
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: "power2.out"
+                });
+            });
 
-        zoomTimeline.to(grid, { scale: 2.05 }) // Zoom entire grid
-            .to(columns[0], { xPercent: -40 }, "<") // Left col moves left
-            .to(columns[2], { xPercent: 40 }, "<") // Right col moves right
-            // Animate center column items vertically to spread out in center
-            .to(columns[1].querySelectorAll('.gallery__item'), {
-                yPercent: (index) => (index < Math.floor(columns[1].querySelectorAll('.gallery__item').length / 2) ? -1 : 1) * 40,
-                duration: 0.5,
-                ease: "power1.inOut"
-            }, "-=0.5");
-
-        // 4. Content Toggle Timeline (Fade in text once gap opens)
-        const toggleContent = (isVisible) => {
-            gsap.timeline({ defaults: { overwrite: true } })
-                .to(title, {
-                    yPercent: isVisible ? 0 : 100, // Slide up if visible
-                    duration: 0.7,
-                    ease: "power2.inOut"
-                })
-                .to([desc, btn], {
-                    opacity: isVisible ? 1 : 0,
-                    duration: 0.4,
-                    ease: isVisible ? "power1.inOut" : "power1.out",
-                    pointerEvents: isVisible ? "all" : "none"
-                }, isVisible ? "-=90%" : "<");
-        };
-
-        // Assemble the Main Timeline
-        scrollTimeline
-            .add(revealTimeline)
-            .add(zoomTimeline, "-=0.6") // Overlap zoom with reveal
-            .add(() => toggleContent(scrollTimeline.scrollTrigger.direction === 1), "-=0.32"); // Trigger text reveal tracking scroll direction
-
-        // 5. Parallax effect for the sticky wrapper to simulate smooth scrolling into next section
-        gsap.from(wrapper, {
-            yPercent: -100,
-            ease: "none",
-            scrollTrigger: {
-                trigger: lookbookBlock,
-                start: "top bottom",
-                end: "top top",
-                scrub: true
-            }
-        });
-
-        // 6. Fade in the title contextually
-        gsap.to(content, {
-            opacity: 1,
-            duration: 0.7,
-            ease: "power1.out",
-            scrollTrigger: {
-                trigger: lookbookBlock,
-                start: "top 57%",
-                toggleActions: "play none none reset"
-            }
+            // Cleanup
+            return () => {
+                gsap.set(items, { clearProps: "all" });
+            };
         });
     }
 }

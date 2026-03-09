@@ -792,3 +792,79 @@ h2 {
         transform: translateY(calc(100% - 80px));
     }
 }
+
+/* Specific Mobile Layout for Lookbook Feed */
+@media (max-width: 768px) {
+
+    /* Unset desktop sticky height and zoom constraints */
+    .block {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .block__wrapper {
+        position: relative;
+        height: auto;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 40px;
+        overflow: visible;
+    }
+
+    /* Bring title context to natural flow */
+    .content-lookbook {
+        position: relative;
+        opacity: 1;
+        /* Override GSAP initial state */
+        margin-bottom: 2rem;
+        transform: none !important;
+        /* Force override GSAP */
+    }
+
+    .content__title {
+        font-size: 2.5rem;
+        transform: none !important;
+    }
+
+    .content__description,
+    .content__button {
+        opacity: 1 !important;
+        pointer-events: auto !important;
+    }
+
+    /* Switch gallery to a vertical feed */
+    .gallery {
+        position: relative;
+        pointer-events: auto;
+        /* Re-enable clicks if necessary on items */
+    }
+
+    .gallery__grid {
+        flex-direction: column;
+        padding: 0 1rem 4rem 1rem;
+        /* Spacing from edges and bottom */
+        gap: 2rem;
+        transform: none !important;
+        /* Prevent desktop zoom from overriding */
+    }
+
+    .gallery__column {
+        width: 100%;
+        gap: 2rem;
+        transform: none !important;
+        /* Prevent desktop stagger transforms */
+    }
+
+    .gallery__item {
+        /* On mobile, images span full width and take less vertical space relative to width */
+        aspect-ratio: 4/3;
+        opacity: 0;
+        /* Initial state for mobile ScrollTrigger reveal */
+        transform: translateY(30px);
+    }
+
+    .empty-frame {
+        display: none;
+        /* Hide the spacer empty frame completely on mobile */
+    }
+}
