@@ -273,9 +273,11 @@ if (typeof ScrollTrigger !== 'undefined') {
         // 4. Create the Spiral Sequence
         // Calculate dynamic stagger so that each image finishes just as the next begins
         items.forEach((item, index) => {
+            const isLast = index === items.length - 1;
+
             // Animate IN
             tl.to(item, {
-                scale: 1,
+                scale: 1, // The last item naturally spans 100vw due to CSS .hero-item
                 rotation: 0,
                 y: 0,
                 opacity: 1,
@@ -284,13 +286,20 @@ if (typeof ScrollTrigger !== 'undefined') {
             }, index * 1.5); // Stagger by 1.5s in timeline time
 
             // Animate OUT (Except for the very last item, which stays)
-            if (index < items.length - 1) {
+            if (!isLast) {
                 tl.to(item, {
                     scale: 1.5, // Zoom past the screen
                     opacity: 0,
                     duration: 1.5,
                     ease: "power2.in"
                 }, (index * 1.5) + 2.5); // Start fading out after it's been visible for a bit
+            } else {
+                // For the last item, let's fade out the text so the hero image shines
+                tl.to([title, desc, btn], {
+                    opacity: 0,
+                    duration: 1,
+                    ease: "power2.inOut"
+                }, (index * 1.5) + 0.5);
             }
         });
     }
