@@ -551,55 +551,48 @@ h2 {
 }
 
 .gallery {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
     z-index: 5;
     pointer-events: none;
-    /* Let clicks pass through empty space to background/particles */
-}
-
-.gallery__grid {
     display: flex;
     justify-content: center;
-    gap: 3vw;
-    height: 100%;
-    padding: 10vh 0;
-    list-style: none;
-    margin: 0;
+    align-items: center;
 }
 
-.gallery__column {
+.gallery__container {
+    position: relative;
+    width: 100%;
+    height: 100%;
     display: flex;
-    flex-direction: column;
-    gap: 3vw;
-    width: 25vw;
+    justify-content: center;
+    align-items: center;
 }
 
 .gallery__item {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 3/4;
-    /* Consistent image block sizing */
+    position: absolute;
+    width: 90vw;
+    max-width: 400px;
+    /* Constrain width on desktop as requested */
+    aspect-ratio: 4/5;
+    /* Taller ratio for portraits */
+    /* Initial state hidden forGSAP to animate FROM */
+    opacity: 0;
+    transform: scale(0);
 }
 
 .lookbook-frame {
     width: 100%;
     height: 100%;
     background-color: #333333;
-    /* Grey placeholder */
     background-size: cover;
     background-position: center;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-/* Empty frame to allow text to bleed through the middle */
-.empty-frame {
-    background: transparent;
-    border: none;
-    box-shadow: none !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
 /* ====== Footer Styles ====== */

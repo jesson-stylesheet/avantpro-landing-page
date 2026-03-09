@@ -236,142 +236,62 @@ if (typeof ScrollTrigger !== 'undefined') {
         const btn = document.querySelector('.js-btn');
         const wrapper = document.querySelector('.block__wrapper');
 
-        // Create a matchMedia instance
-        let mm = gsap.matchMedia();
+        // 1. Initial Setup
+        const items = gsap.utils.toArray('.js-spiral-item');
 
-        // --------------------------------------------------
-        // DESKTOP & TABLET ANIMATION (min-width: 769px)
-        // --------------------------------------------------
-        mm.add("(min-width: 769px)", () => {
-            // Setup default state
-            gsap.set([desc, btn], { opacity: 0, pointerEvents: 'none' });
-            gsap.set(title, { yPercent: 100 });
+        // Hide Text initially
+        gsap.set([desc, btn], { opacity: 0, pointerEvents: 'none' });
+        gsap.set(title, { yPercent: 100 });
 
-            // Create the main scroll-driven timeline
-            const scrollTimeline = gsap.timeline({
-                scrollTrigger: {
-                    trigger: lookbookBlock,
-                    start: "top 25%",
-                    end: "bottom bottom",
-                    scrub: true,
-                }
-            });
-
-            // Grid Reveal Timeline
-            const revealTimeline = gsap.timeline();
-            const dy = window.innerHeight;
-
-            columns.forEach((column, colIndex) => {
-                const fromTop = colIndex % 2 === 0;
-                revealTimeline.from(column.querySelectorAll('.gallery__item'), {
-                    y: dy * (fromTop ? -1 : 1),
-                    stagger: {
-                        each: 0.06,
-                        from: fromTop ? "end" : "start"
-                    },
-                    ease: "power1.inOut"
-                }, "reveal");
-            });
-
-            // Grid Zoom Timeline
-            const zoomTimeline = gsap.timeline({
-                defaults: { duration: 1, ease: "power3.inOut" }
-            });
-
-            zoomTimeline.to(grid, { scale: 2.05 })
-                .to(columns[0], { xPercent: -40 }, "<")
-                .to(columns[2], { xPercent: 40 }, "<")
-                .to(columns[1].querySelectorAll('.gallery__item'), {
-                    yPercent: (index) => (index < Math.floor(columns[1].querySelectorAll('.gallery__item').length / 2) ? -1 : 1) * 40,
-                    duration: 0.5,
-                    ease: "power1.inOut"
-                }, "-=0.5");
-
-            // Content Toggle Timeline
-            const toggleContent = (isVisible) => {
-                gsap.timeline({ defaults: { overwrite: true } })
-                    .to(title, {
-                        yPercent: isVisible ? 0 : 100,
-                        duration: 0.7,
-                        ease: "power2.inOut"
-                    })
-                    .to([desc, btn], {
-                        opacity: isVisible ? 1 : 0,
-                        duration: 0.4,
-                        ease: isVisible ? "power1.inOut" : "power1.out",
-                        pointerEvents: isVisible ? "all" : "none"
-                    }, isVisible ? "-=90%" : "<");
-            };
-
-            // Assemble the Main Timeline
-            scrollTimeline
-                .add(revealTimeline)
-                .add(zoomTimeline, "-=0.6")
-                .add(() => toggleContent(scrollTimeline.scrollTrigger.direction === 1), "-=0.32");
-
-            // Parallax effect for the sticky wrapper
-            gsap.from(wrapper, {
-                yPercent: -100,
-                ease: "none",
-                scrollTrigger: {
-                    trigger: lookbookBlock,
-                    start: "top bottom",
-                    end: "top top",
-                    scrub: true
-                }
-            });
-
-            // Fade in the title contextually
-            gsap.to(content, {
-                opacity: 1,
-                duration: 0.7,
-                ease: "power1.out",
-                scrollTrigger: {
-                    trigger: lookbookBlock,
-                    start: "top 57%",
-                    toggleActions: "play none none reset"
-                }
-            });
-
-            // Cleanup function for when media query doesn't match
-            return () => {
-                // Return elements to normal state when reverting
-                gsap.set([title, desc, btn, content, grid, wrapper], { clearProps: "all" });
-                columns.forEach(col => {
-                    gsap.set(col, { clearProps: "all" });
-                    gsap.set(col.querySelectorAll('.gallery__item'), { clearProps: "all" });
-                });
-            };
+        // Place images out of view for the spiral entry
+        // z: -1000 sends it back in 3D space, rotation down to spin up
+        gsap.set(items, {
+            scale: 0,
+            rotation: -720, // Spin backwards 2 full rotations
+            y: "-100vh", // Start high up
+            opacity: 0,
+            zIndex: (i, target, targets) => targets.length - i // First item on top
         });
 
-        // --------------------------------------------------
-        // MOBILE ANIMATION (max-width: 768px)
-        // --------------------------------------------------
-        mm.add("(max-width: 768px)", () => {
-            // Simple fade and slide up for each image as you scroll
-            const items = gsap.utils.toArray('.gallery__item:not(.empty-frame)');
+        // 2. Create the main ScrollTrigger Timeline
+        // This will pin the entire block and scrub the animation over a long scroll
+        const tl = gsap.timeline({
+            scrollTrigger: {
+                trigger: lookbookBlock,
+                start: "top top", // Start pinning when the top hits the top of viewport
+                end: "+=600%", // Pin for 6x the viewport height to give enough scroll time for all images
+                scrub: 1, // Smooth scrubbing taking 1 second to catch up to scroll bar
+                pin: true, // Pin the container!
+                anticipatePin: 1
+            }
+        });
 
-            items.forEach((item) => {
-                // Ensure initial state is set for the reveal
-                gsap.set(item, { opacity: 0, y: 30 });
+        // 3. Animate the Text In (Happens right at the start of the scroll)
+        tl.to(title, { yPercent: 0, duration: 0.5, ease: "power2.out" }, 0)
+            .to([desc, btn], { opacity: 1, pointerEvents: 'all', duration: 0.5, ease: "power2.out" }, 0.2);
 
-                gsap.to(item, {
-                    scrollTrigger: {
-                        trigger: item,
-                        start: "top 85%", // Trigger when top of image is 85% down viewport
-                        toggleActions: "play none none reverse"
-                    },
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.8,
-                    ease: "power2.out"
-                });
-            });
+        // 4. Create the Spiral Sequence
+        // Calculate dynamic stagger so that each image finishes just as the next begins
+        items.forEach((item, index) => {
+            // Animate IN
+            tl.to(item, {
+                scale: 1,
+                rotation: 0,
+                y: 0,
+                opacity: 1,
+                duration: 2,
+                ease: "power3.out"
+            }, index * 1.5); // Stagger by 1.5s in timeline time
 
-            // Cleanup
-            return () => {
-                gsap.set(items, { clearProps: "all" });
-            };
+            // Animate OUT (Except for the very last item, which stays)
+            if (index < items.length - 1) {
+                tl.to(item, {
+                    scale: 1.5, // Zoom past the screen
+                    opacity: 0,
+                    duration: 1.5,
+                    ease: "power2.in"
+                }, (index * 1.5) + 2.5); // Start fading out after it's been visible for a bit
+            }
         });
     }
 }
