@@ -259,7 +259,7 @@ if (typeof ScrollTrigger !== 'undefined') {
             scrollTrigger: {
                 trigger: lookbookBlock,
                 start: "top top", // Start pinning when the top hits the top of viewport
-                end: "+=600%", // Pin for 6x the viewport height to give enough scroll time for all images
+                end: "+=1000%", // Increased from 600% to 1000% to give much more scroll space for slower pacing
                 scrub: 1, // Smooth scrubbing taking 1 second to catch up to scroll bar
                 pin: true, // Pin the container!
                 anticipatePin: 1
@@ -275,6 +275,12 @@ if (typeof ScrollTrigger !== 'undefined') {
         items.forEach((item, index) => {
             const isLast = index === items.length - 1;
 
+            // We increase the timing gaps to allow "dwell time" where the image sits at scale 1.
+            // Timeline unit math:
+            // Animate IN happens over 2 units of time.
+            const inStart = index * 4; // Space each image start by 4 timeline units (was 1.5)
+            const outStart = inStart + 3; // Start animating out 3 units after it started moving IN (gives 1 unit of pure "sit still" dwell time at scale 1)
+
             // Animate IN
             tl.to(item, {
                 scale: 1, // The last item naturally spans 100vw due to CSS .hero-item
@@ -283,7 +289,7 @@ if (typeof ScrollTrigger !== 'undefined') {
                 opacity: 1,
                 duration: 2,
                 ease: "power3.out"
-            }, index * 1.5); // Stagger by 1.5s in timeline time
+            }, inStart);
 
             // Animate OUT (Except for the very last item, which stays)
             if (!isLast) {
@@ -292,14 +298,14 @@ if (typeof ScrollTrigger !== 'undefined') {
                     opacity: 0,
                     duration: 1.5,
                     ease: "power2.in"
-                }, (index * 1.5) + 2.5); // Start fading out after it's been visible for a bit
+                }, outStart);
             } else {
                 // For the last item, let's fade out the text so the hero image shines
                 tl.to([title, desc, btn], {
                     opacity: 0,
                     duration: 1,
                     ease: "power2.inOut"
-                }, (index * 1.5) + 0.5);
+                }, inStart + 0.5);
             }
         });
     }
