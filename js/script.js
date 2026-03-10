@@ -235,12 +235,13 @@ if (typeof ScrollTrigger !== 'undefined') {
         const desc = document.querySelector('.js-desc');
         const btn = document.querySelector('.js-btn');
         const wrapper = document.querySelector('.block__wrapper');
+        const scrollPrompt = document.querySelector('.js-scroll-prompt');
 
         // 1. Initial Setup
         const items = gsap.utils.toArray('.js-spiral-item');
 
         // Hide Text initially
-        gsap.set([desc, btn], { opacity: 0, pointerEvents: 'none' });
+        gsap.set([desc, btn, scrollPrompt], { opacity: 0, pointerEvents: 'none' });
         gsap.set(title, { yPercent: 100 });
 
         // Place images out of view for the spiral entry
@@ -268,7 +269,8 @@ if (typeof ScrollTrigger !== 'undefined') {
 
         // 3. Animate the Text In (Happens right at the start of the scroll)
         tl.to(title, { yPercent: 0, duration: 0.5, ease: "power2.out" }, 0)
-            .to([desc, btn], { opacity: 1, pointerEvents: 'all', duration: 0.5, ease: "power2.out" }, 0.2);
+            .to([desc, btn, scrollPrompt], { opacity: 1, pointerEvents: 'all', duration: 0.5, ease: "power2.out" }, 0.2)
+            .to(scrollPrompt, { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 2); // Fade out prompt once user scrolls enough
 
         // 4. Create the Spiral Sequence
         // Calculate dynamic stagger so that each image finishes just as the next begins
