@@ -651,16 +651,16 @@ h2 {
     /* Full edge-to-edge looks better without rounded corners */
 }
 
-/* Mobile Lookbook Adjustments */
+/* Mobile Lookbook Adjustments — typography sizing */
 @media (max-width: 768px) {
-    .content-lookbook {
-        transform: translateY(-80px);
-        /* Push text up slightly */
+    .content__description {
+        font-size: 1rem;
+        margin-bottom: 1.2rem;
     }
 
-    .gallery {
-        transform: translateY(140px);
-        /* Push images down substantially to clear the button */
+    .content__button {
+        padding: 12px 24px;
+        font-size: 0.95rem;
     }
 }
 
@@ -1016,10 +1016,10 @@ h2 {
 /* Specific Mobile Layout for Lookbook Feed */
 @media (max-width: 768px) {
 
-    /* Unset desktop sticky height and zoom constraints */
+    /* Unset desktop sticky/pinned layout */
     .block {
         height: auto;
-        min-height: 100vh;
+        min-height: auto;
     }
 
     .block__wrapper {
@@ -1027,65 +1027,57 @@ h2 {
         height: auto;
         flex-direction: column;
         justify-content: flex-start;
-        padding-top: 40px;
+        padding: 40px 0 0;
         overflow: visible;
     }
 
-    /* Bring title context to natural flow */
+    /* Content flows naturally on mobile */
     .content-lookbook {
         position: relative;
         opacity: 1;
-        /* Override GSAP initial state */
-        margin-bottom: 2rem;
-        transform: none !important;
-        /* Force override GSAP */
+        margin-bottom: 1.5rem;
+        transform: none;
     }
 
     .content__title {
-        font-size: 2.5rem;
-        transform: none !important;
+        font-size: 2.2rem;
     }
 
-    .content__description,
-    .content__button {
-        opacity: 1 !important;
-        pointer-events: auto !important;
-    }
-
-    /* Switch gallery to a vertical feed */
+    /* Gallery becomes a vertical scrolling feed */
     .gallery {
         position: relative;
+        height: auto;
         pointer-events: auto;
-        /* Re-enable clicks if necessary on items */
+        transform: none;
     }
 
-    .gallery__grid {
+    .gallery__container {
         flex-direction: column;
-        padding: 0 1rem 4rem 1rem;
-        /* Spacing from edges and bottom */
-        gap: 2rem;
-        transform: none !important;
-        /* Prevent desktop zoom from overriding */
-    }
-
-    .gallery__column {
-        width: 100%;
-        gap: 2rem;
-        transform: none !important;
-        /* Prevent desktop stagger transforms */
+        gap: 1.5rem;
+        padding: 0 1rem 3rem;
     }
 
     .gallery__item {
-        /* On mobile, images span full width and take less vertical space relative to width */
-        aspect-ratio: 4/3;
+        position: relative;
+        width: 100%;
+        max-width: 100%;
         opacity: 0;
-        /* Initial state for mobile ScrollTrigger reveal */
-        transform: translateY(30px);
+        transform: translateY(30px) scale(1);
+    }
+
+    /* Hide scroll prompt on mobile — it's a natural feed */
+    .scroll-prompt {
+        display: none;
+    }
+
+    /* Hero image goes full-width on mobile feed */
+    .hero-item {
+        width: 100%;
+        max-width: 100%;
     }
 
     .empty-frame {
         display: none;
-        /* Hide the spacer empty frame completely on mobile */
     }
 }
 

@@ -228,6 +228,7 @@ if (typeof ScrollTrigger !== 'undefined') {
     const lookbookBlock = document.querySelector('.block--main');
 
     if (lookbookBlock) {
+        const isMobile = window.innerWidth <= 768;
         const content = document.querySelector('.js-content');
         const title = document.querySelector('.js-title');
         const desc = document.querySelector('.js-desc');
@@ -235,68 +236,99 @@ if (typeof ScrollTrigger !== 'undefined') {
         const scrollPrompt = document.querySelector('.js-scroll-prompt');
         const items = gsap.utils.toArray('.js-spiral-item');
 
-        // 1. Initial Setup — hide text & images cleanly
-        gsap.set([desc, btn, scrollPrompt], { opacity: 0, pointerEvents: 'none' });
-        gsap.set(title, { yPercent: 100 });
+        if (isMobile) {
+            // ---- MOBILE: Vertical feed with simple scroll reveals ----
+            // Show text immediately, no pinning
+            gsap.set(content, { opacity: 1 });
+            gsap.set(title, { yPercent: 0 });
+            gsap.set([desc, btn], { opacity: 1, pointerEvents: 'all' });
+            // Hide scroll prompt on mobile (it's a natural feed)
+            gsap.set(scrollPrompt, { opacity: 0, display: 'none' });
 
-        // Stack images: subtle start state (no rotation, just slightly below + scaled down + invisible)
-        gsap.set(items, {
-            scale: 0.92,
-            y: 60,
-            opacity: 0,
-            zIndex: (i, target, targets) => targets.length - i
-        });
+            // Gallery items: simple fade-up reveal on scroll
+            items.forEach((item) => {
+                // Reset stacked positioning for mobile feed
+                gsap.set(item, { position: 'relative', scale: 1, y: 30, opacity: 0 });
 
-        // 2. Create the main ScrollTrigger Timeline
-        const tl = gsap.timeline({
-            scrollTrigger: {
-                trigger: lookbookBlock,
-                start: "top top",
-                end: "+=400%", // Reasonable scroll distance (4x viewport)
-                scrub: 0.8,
-                pin: true,
-                anticipatePin: 1
-            }
-        });
+                gsap.to(item, {
+                    scrollTrigger: {
+                        trigger: item,
+                        start: "top 90%",
+                        toggleActions: "play none none reverse"
+                    },
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.6,
+                    ease: "power2.out"
+                });
+            });
 
-        // 3. Animate the Text In
-        tl.to(title, { yPercent: 0, duration: 0.5, ease: "power2.out" }, 0)
-            .to([desc, btn, scrollPrompt], { opacity: 1, pointerEvents: 'all', duration: 0.5, ease: "power2.out" }, 0.15)
-            .to(scrollPrompt, { opacity: 0, duration: 0.3, ease: "power2.inOut" }, 1.2);
+        } else {
+            // ---- DESKTOP: Pinned stacked-card crossfade ----
 
-        // 4. Stacked Card Crossfade — each image fades/slides in, holds, then fades out
-        const cardDuration = 0.6;   // Time to animate in
-        const holdDuration = 0.4;   // Time the card is fully visible
-        const fadeOutDuration = 0.4; // Time to animate out
-        const spacing = cardDuration + holdDuration; // Gap between each card's start
+            // 1. Initial Setup — hide text & images cleanly
+            gsap.set([desc, btn, scrollPrompt], { opacity: 0, pointerEvents: 'none' });
+            gsap.set(title, { yPercent: 100 });
 
-        // Text fades out as first image appears
-        const firstCardStart = 1.5;
-        tl.to(content, { opacity: 0, duration: 0.4, ease: "power2.inOut" }, firstCardStart + 0.1);
+            // Stack images: subtle start state (slightly below + scaled down + invisible)
+            gsap.set(items, {
+                scale: 0.92,
+                y: 60,
+                opacity: 0,
+                zIndex: (i, target, targets) => targets.length - i
+            });
 
-        items.forEach((item, index) => {
-            const isLast = index === items.length - 1;
-            const inStart = firstCardStart + (index * spacing);
-            const outStart = inStart + cardDuration + holdDuration;
+            // 2. Create the main ScrollTrigger Timeline
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: lookbookBlock,
+                    start: "top top",
+                    end: "+=400%", // Reasonable scroll distance (4x viewport)
+                    scrub: 0.8,
+                    pin: true,
+                    anticipatePin: 1
+                }
+            });
 
-            // Animate IN — subtle slide up + scale to 1 + fade in
-            tl.to(item, {
-                scale: 1,
-                y: 0,
-                opacity: 1,
-                duration: cardDuration,
-                ease: "power2.out"
-            }, inStart);
+            // 3. Animate the Text In
+            tl.to(title, { yPercent: 0, duration: 0.5, ease: "power2.out" }, 0)
+                .to([desc, btn, scrollPrompt], { opacity: 1, pointerEvents: 'all', duration: 0.5, ease: "power2.out" }, 0.15)
+                .to(scrollPrompt, { opacity: 0, duration: 0.3, ease: "power2.inOut" }, 1.2);
 
-            // Animate OUT — fade + slight scale down (except last item stays)
-            if (!isLast) {
+            // 4. Stacked Card Crossfade — each image fades/slides in, holds, then fades out
+            const cardDuration = 0.6;
+            const holdDuration = 0.4;
+            const fadeOutDuration = 0.4;
+            const spacing = cardDuration + holdDuration;
+
+            // Text fades out as first image appears
+            const firstCardStart = 1.5;
+            tl.to(content, { opacity: 0, duration: 0.4, ease: "power2.inOut" }, firstCardStart + 0.1);
+
+            items.forEach((item, index) => {
+                const isLast = index === items.length - 1;
+                const inStart = firstCardStart + (index * spacing);
+                const outStart = inStart + cardDuration + holdDuration;
+
+                // Animate IN — subtle slide up + scale to 1 + fade in
                 tl.to(item, {
-                    scale: 1.04,
-                    opacity: 0,
-                    duration: fadeOutDuration,
-                    ease: "power2.in"
-                }, outStart);
-            }
-        });
+                    scale: 1,
+                    y: 0,
+                    opacity: 1,
+                    duration: cardDuration,
+                    ease: "power2.out"
+                }, inStart);
+
+                // Animate OUT — fade + slight scale up (except last item stays)
+                if (!isLast) {
+                    tl.to(item, {
+                        scale: 1.04,
+                        opacity: 0,
+                        duration: fadeOutDuration,
+                        ease: "power2.in"
+                    }, outStart);
+                }
+            });
+        }
     }
 }
