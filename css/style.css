@@ -1156,8 +1156,9 @@ h2 {
 @media (max-width: 768px) {
     .founders-grid {
         grid-template-columns: 1fr;
-        max-width: 320px;
+        max-width: 380px; /* Increased from 320px to allow Instagram's native 326px width nicely */
         margin-left: auto;
         margin-right: auto;
+        justify-items: center; /* Ensure contents are centered within the 1-column grid */
     }
 }
