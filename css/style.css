@@ -491,8 +491,8 @@ h2 {
 /* ====== Lookbook Styles (Sticky Grid Scroll) ====== */
 .block {
     position: relative;
-    height: 400vh;
-    /* Long scroll distance for GSAP timeline */
+    height: 200vh;
+    /* Scroll distance — GSAP ScrollTrigger end: "+=400%" overrides this for pinning */
     width: 100%;
 }
 
@@ -580,9 +580,9 @@ h2 {
     max-width: 400px;
     height: auto;
     /* Let image define height naturally */
-    /* Initial state hidden for GSAP to animate FROM */
+    /* Initial state — GSAP sets scale(0.92), y(60), opacity(0) */
     opacity: 0;
-    transform: scale(0);
+    transform: scale(0.92) translateY(60px);
 }
 
 /* Scroll Prompt */
@@ -1092,7 +1092,7 @@ h2 {
 /* Founders Video Grid */
 .founders-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
     margin-top: 2rem;
     width: 100%;
@@ -1101,12 +1101,21 @@ h2 {
 .founder-video-container {
     position: relative;
     width: 100%;
-    padding-bottom: 177.78%; /* 16:9 aspect ratio inverted to 9:16 (16/9 = 1.7778) */
-    background-color: rgba(0, 0, 0, 0.4);
+    padding-bottom: 177.78%;
+    /* 16:9 aspect ratio inverted to 9:16 (16/9 = 1.7778) */
+    background: linear-gradient(145deg, rgba(30, 30, 30, 0.6) 0%, rgba(10, 10, 10, 0.8) 100%);
     border-radius: 12px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.founder-video-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.5);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .founder-video-container .video-placeholder {
@@ -1116,11 +1125,47 @@ h2 {
     width: 100%;
     height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     color: var(--accent-color);
-    font-size: 1.2rem;
+}
+
+.video-placeholder .play-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+    stroke: var(--logo-color);
+    /* Gold color */
+    fill: rgba(192, 158, 80, 0.2);
+    transition: transform 0.3s ease, fill 0.3s ease;
+}
+
+.founder-video-container:hover .play-icon {
+    transform: scale(1.1);
+    fill: rgba(192, 158, 80, 0.4);
+}
+
+.video-placeholder .video-title {
+    font-size: 1.1rem;
     font-weight: bold;
+    color: #fff;
     text-transform: uppercase;
     letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.video-placeholder .video-dim {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+}
+
+@media (max-width: 768px) {
+    .founders-grid {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+    }
 }

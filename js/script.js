@@ -224,90 +224,78 @@ if (typeof ScrollTrigger !== 'undefined') {
     }
 
     // --- Lookbook Scroll Animation --- //
-    // Based on Codrops Sticky Grid Scroll Tutorial
+    // Clean stacked-card crossfade driven by scroll
     const lookbookBlock = document.querySelector('.block--main');
 
     if (lookbookBlock) {
-        const grid = document.querySelector('.js-grid');
-        const columns = document.querySelectorAll('.js-col');
         const content = document.querySelector('.js-content');
         const title = document.querySelector('.js-title');
         const desc = document.querySelector('.js-desc');
         const btn = document.querySelector('.js-btn');
-        const wrapper = document.querySelector('.block__wrapper');
         const scrollPrompt = document.querySelector('.js-scroll-prompt');
-
-        // 1. Initial Setup
         const items = gsap.utils.toArray('.js-spiral-item');
 
-        // Hide Text initially
+        // 1. Initial Setup — hide text & images cleanly
         gsap.set([desc, btn, scrollPrompt], { opacity: 0, pointerEvents: 'none' });
         gsap.set(title, { yPercent: 100 });
 
-        // Place images out of view for the spiral entry
-        // z: -1000 sends it back in 3D space, rotation down to spin up
+        // Stack images: subtle start state (no rotation, just slightly below + scaled down + invisible)
         gsap.set(items, {
-            scale: 0,
-            rotation: -720, // Spin backwards 2 full rotations
-            y: "-100vh", // Start high up
+            scale: 0.92,
+            y: 60,
             opacity: 0,
-            zIndex: (i, target, targets) => targets.length - i // First item on top
+            zIndex: (i, target, targets) => targets.length - i
         });
 
         // 2. Create the main ScrollTrigger Timeline
-        // This will pin the entire block and scrub the animation over a long scroll
         const tl = gsap.timeline({
             scrollTrigger: {
                 trigger: lookbookBlock,
-                start: "top top", // Start pinning when the top hits the top of viewport
-                end: "+=1000%", // Increased from 600% to 1000% to give much more scroll space for slower pacing
-                scrub: 1, // Smooth scrubbing taking 1 second to catch up to scroll bar
-                pin: true, // Pin the container!
+                start: "top top",
+                end: "+=400%", // Reasonable scroll distance (4x viewport)
+                scrub: 0.8,
+                pin: true,
                 anticipatePin: 1
             }
         });
 
-        // 3. Animate the Text In (Happens right at the start of the scroll)
+        // 3. Animate the Text In
         tl.to(title, { yPercent: 0, duration: 0.5, ease: "power2.out" }, 0)
-            .to([desc, btn, scrollPrompt], { opacity: 1, pointerEvents: 'all', duration: 0.5, ease: "power2.out" }, 0.2)
-            .to(scrollPrompt, { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 2); // Fade out prompt once user scrolls enough
+            .to([desc, btn, scrollPrompt], { opacity: 1, pointerEvents: 'all', duration: 0.5, ease: "power2.out" }, 0.15)
+            .to(scrollPrompt, { opacity: 0, duration: 0.3, ease: "power2.inOut" }, 1.2);
 
-        // 4. Create the Spiral Sequence
-        // Calculate dynamic stagger so that each image finishes just as the next begins
+        // 4. Stacked Card Crossfade — each image fades/slides in, holds, then fades out
+        const cardDuration = 0.6;   // Time to animate in
+        const holdDuration = 0.4;   // Time the card is fully visible
+        const fadeOutDuration = 0.4; // Time to animate out
+        const spacing = cardDuration + holdDuration; // Gap between each card's start
+
+        // Text fades out as first image appears
+        const firstCardStart = 1.5;
+        tl.to(content, { opacity: 0, duration: 0.4, ease: "power2.inOut" }, firstCardStart + 0.1);
+
         items.forEach((item, index) => {
             const isLast = index === items.length - 1;
+            const inStart = firstCardStart + (index * spacing);
+            const outStart = inStart + cardDuration + holdDuration;
 
-            // We increase the timing gaps to allow "dwell time" where the image sits at scale 1.
-            // Timeline unit math:
-            // Animate IN happens over 2 units of time.
-            const inStart = index * 4; // Space each image start by 4 timeline units (was 1.5)
-            const outStart = inStart + 3; // Start animating out 3 units after it started moving IN (gives 1 unit of pure "sit still" dwell time at scale 1)
-
-            // Animate IN
+            // Animate IN — subtle slide up + scale to 1 + fade in
             tl.to(item, {
-                scale: 1, // The last item naturally spans 100vw due to CSS .hero-item
-                rotation: 0,
+                scale: 1,
                 y: 0,
                 opacity: 1,
-                duration: 2,
-                ease: "power3.out"
+                duration: cardDuration,
+                ease: "power2.out"
             }, inStart);
 
-            // Animate OUT (Except for the very last item, which stays)
+            // Animate OUT — fade + slight scale down (except last item stays)
             if (!isLast) {
                 tl.to(item, {
-                    scale: 1.5, // Zoom past the screen
+                    scale: 1.04,
                     opacity: 0,
-                    duration: 1.5,
+                    duration: fadeOutDuration,
                     ease: "power2.in"
                 }, outStart);
-            } else {
-                // For the last item, let's fade out the text so the hero image shines
-                tl.to([title, desc, btn], {
-                    opacity: 0,
-                    duration: 1,
-                    ease: "power2.inOut"
-                }, inStart + 0.5);
             }
         });
     }
