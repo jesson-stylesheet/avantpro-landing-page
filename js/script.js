@@ -266,9 +266,12 @@ if (typeof ScrollTrigger !== 'undefined') {
         } else {
             // ---- DESKTOP: Pinned stacked-card crossfade ----
 
-            // 1. Initial Setup — hide text & images cleanly
-            gsap.set([desc, btn, scrollPrompt], { opacity: 0, pointerEvents: 'none' });
-            gsap.set(title, { yPercent: 100 });
+            // 1. Initial Setup
+            // Override the opacity-zero CSS class so GSAP controls visibility
+            gsap.set(content, { opacity: 1 });
+            gsap.set(title, { opacity: 0, y: 30 });
+            gsap.set([desc, btn], { opacity: 0, y: 20 });
+            gsap.set(scrollPrompt, { opacity: 0 });
 
             // Stack images: subtle start state (slightly below + scaled down + invisible)
             gsap.set(items, {
@@ -278,32 +281,35 @@ if (typeof ScrollTrigger !== 'undefined') {
                 zIndex: (i, target, targets) => targets.length - i
             });
 
-            // 2. Create the main ScrollTrigger Timeline
+            // 2. Intro animation — plays immediately on page load (not scroll-dependent)
+            const intro = gsap.timeline({ delay: 0.3 });
+            intro.to(title, { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" })
+                .to(desc, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, "-=0.4")
+                .to(btn, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }, "-=0.3")
+                .to(scrollPrompt, { opacity: 1, duration: 0.5, ease: "power2.out" }, "-=0.2");
+
+            // 3. Create the scroll-driven Timeline for the image sequence
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: lookbookBlock,
                     start: "top top",
-                    end: "+=400%", // Reasonable scroll distance (4x viewport)
+                    end: "+=400%",
                     scrub: 0.8,
                     pin: true,
                     anticipatePin: 1
                 }
             });
 
-            // 3. Animate the Text In
-            tl.to(title, { yPercent: 0, duration: 0.5, ease: "power2.out" }, 0)
-                .to([desc, btn, scrollPrompt], { opacity: 1, pointerEvents: 'all', duration: 0.5, ease: "power2.out" }, 0.15)
-                .to(scrollPrompt, { opacity: 0, duration: 0.3, ease: "power2.inOut" }, 1.2);
+            // 4. On scroll: fade out the text + scroll prompt, then cycle images
+            tl.to(scrollPrompt, { opacity: 0, duration: 0.3, ease: "power2.inOut" }, 0)
+                .to(content, { opacity: 0, y: -30, duration: 0.5, ease: "power2.inOut" }, 0.1);
 
-            // 4. Stacked Card Crossfade — each image fades/slides in, holds, then fades out
+            // 5. Stacked Card Crossfade
             const cardDuration = 0.6;
-            const holdDuration = 0.4;
+            const holdDuration = 0.5;
             const fadeOutDuration = 0.4;
             const spacing = cardDuration + holdDuration;
-
-            // Text fades out as first image appears
-            const firstCardStart = 1.5;
-            tl.to(content, { opacity: 0, duration: 0.4, ease: "power2.inOut" }, firstCardStart + 0.1);
+            const firstCardStart = 0.8;
 
             items.forEach((item, index) => {
                 const isLast = index === items.length - 1;
