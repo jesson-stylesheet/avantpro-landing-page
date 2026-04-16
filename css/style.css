@@ -225,14 +225,14 @@ h2 {
 
 /* ====== 3D Glass Card Carousel Styles ====== */
 .carousel-container {
-    width: 90vw;
-    height: 60vw;
-    max-width: 400px;
-    max-height: 450px;
+    width: 70vw;
+    height: 50vw;
+    max-width: 280px;
+    max-height: 360px;
     position: relative;
-    perspective: 1000px;
+    perspective: 800px;
     /* This creates the 3D space */
-    margin-bottom: 5rem;
+    margin-bottom: 3rem;
     cursor: grab;
     touch-action: pan-y; /* Prevent vertical scroll from jumping while panning horizontally */
 }
@@ -270,28 +270,28 @@ h2 {
 
 /* Positions each card in a circle within the 3D space */
 .card:nth-child(1) {
-    transform: rotateY(0deg) translateZ(30vw);
+    transform: rotateY(0deg) translateZ(22vw);
 }
 
 .card:nth-child(2) {
-    transform: rotateY(120deg) translateZ(30vw);
+    transform: rotateY(120deg) translateZ(22vw);
 }
 
 .card:nth-child(3) {
-    transform: rotateY(240deg) translateZ(30vw);
+    transform: rotateY(240deg) translateZ(22vw);
 }
 
 /* Specific hover transforms to prevent jagged effect by reapplying original transform */
 .card:nth-child(1):hover {
-    transform: rotateY(0deg) translateZ(30vw) scale(1.05);
+    transform: rotateY(0deg) translateZ(22vw) scale(1.05);
 }
 
 .card:nth-child(2):hover {
-    transform: rotateY(120deg) translateZ(30vw) scale(1.05);
+    transform: rotateY(120deg) translateZ(22vw) scale(1.05);
 }
 
 .card:nth-child(3):hover {
-    transform: rotateY(240deg) translateZ(30vw) scale(1.05);
+    transform: rotateY(240deg) translateZ(22vw) scale(1.05);
 }
 
 /* Container for the card's text info */

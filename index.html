@@ -237,6 +237,85 @@
             </div>
         </div>
         <!-- ====== End Carousel ====== -->
+
+        <!-- Inline carousel script for instant startup (no defer delay) -->
+        <script>
+            (function () {
+                var container = document.querySelector('.carousel-container');
+                var wrapper = document.querySelector('.carousel-wrapper');
+                if (!container || !wrapper) return;
+
+                var currentRotation = 0;
+                var targetRotation = 0;
+                var isDragging = false;
+                var startX = 0;
+                var rotationBeforeDrag = 0;
+                var dragVelocity = 0;
+                var previousX = 0;
+
+                var autoTimer = null;
+                var AUTO_DELAY = 3000;
+                var autoSpinHoverBlocked = false;
+
+                function startAutoTimer() {
+                    clearInterval(autoTimer);
+                    autoTimer = setInterval(function () {
+                        if (!isDragging) targetRotation -= 120;
+                    }, AUTO_DELAY);
+                }
+                startAutoTimer();
+
+                container.addEventListener('mouseenter', function () {
+                    autoSpinHoverBlocked = true;
+                    clearInterval(autoTimer);
+                });
+                container.addEventListener('mouseleave', function () {
+                    autoSpinHoverBlocked = false;
+                    if (!isDragging) startAutoTimer();
+                });
+
+                function tick() {
+                    if (!isDragging) {
+                        currentRotation += (targetRotation - currentRotation) * 0.08;
+                    }
+                    wrapper.style.transform = 'rotateY(' + currentRotation + 'deg)';
+                    requestAnimationFrame(tick);
+                }
+                tick();
+
+                function onDown(e) {
+                    isDragging = true;
+                    clearInterval(autoTimer);
+                    startX = e.clientX || (e.touches && e.touches[0].clientX);
+                    previousX = startX;
+                    rotationBeforeDrag = currentRotation;
+                    container.style.cursor = 'grabbing';
+                }
+                function onMove(e) {
+                    if (!isDragging) return;
+                    var cx = e.clientX || (e.touches && e.touches[0].clientX);
+                    if (cx === undefined) return;
+                    dragVelocity = cx - previousX;
+                    previousX = cx;
+                    currentRotation = rotationBeforeDrag + (cx - startX) * 0.5;
+                }
+                function onUp() {
+                    if (!isDragging) return;
+                    isDragging = false;
+                    container.style.cursor = 'grab';
+                    var proj = currentRotation + dragVelocity * 3;
+                    targetRotation = Math.round(proj / 120) * 120;
+                    if (!autoSpinHoverBlocked) startAutoTimer();
+                }
+
+                container.addEventListener('mousedown', onDown);
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+                container.addEventListener('touchstart', onDown, { passive: true });
+                window.addEventListener('touchmove', onMove, { passive: true });
+                window.addEventListener('touchend', onUp);
+            })();
+        </script>
     </div>
 
     <!-- ====== Newsletter Section ====== -->
