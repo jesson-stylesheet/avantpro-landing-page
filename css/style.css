@@ -582,10 +582,8 @@ h2 {
 
 /* Scroll Prompt */
 .scroll-prompt {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
+    position: relative;
+    margin-top: 5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
