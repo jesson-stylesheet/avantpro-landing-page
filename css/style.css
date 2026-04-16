@@ -322,8 +322,8 @@ h2 {
     height: 100%;
     color: #000;
     z-index: 2;
-    transform: translateY(calc(100% - 100px));
-    /* Hides most of the info panel */
+    transform: translateY(calc(100% - 140px));
+    /* Hides most of the info panel, reveals title + description strip */
     transition: transform 0.5s ease-out;
 }
 
