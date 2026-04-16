@@ -345,22 +345,44 @@ const carouselWrapper = document.querySelector('.carousel-wrapper');
 
 if (carouselContainer && carouselWrapper) {
     let currentRotation = 0;
+    let targetRotation = 0;
     let isDragging = false;
     let startX = 0;
+    let rotationBeforeDrag = 0;
+    let dragVelocity = 0;
+    let previousX = 0;
     
-    // Continuous auto-spin when not dragged or hovered
-    let autoSpin = true;
-    let spinSpeed = -0.15; // degrees per frame
+    // Auto slide timer
+    let autoTimer = null;
+    const AUTO_DELAY = 3000; // 3 seconds pause on each card
+    let autoSpinHoverBlocked = false;
+
+    function startAutoTimer() {
+        clearInterval(autoTimer);
+        autoTimer = setInterval(() => {
+            if (!isDragging) {
+                targetRotation -= 120; // go to next card
+            }
+        }, AUTO_DELAY);
+    }
+    
+    startAutoTimer();
     
     // Stop auto-spin on hover for desktop
-    carouselContainer.addEventListener('mouseenter', () => autoSpin = false);
+    carouselContainer.addEventListener('mouseenter', () => {
+        autoSpinHoverBlocked = true;
+        clearInterval(autoTimer);
+    });
+    
     carouselContainer.addEventListener('mouseleave', () => {
-        if (!isDragging) autoSpin = true;
+        autoSpinHoverBlocked = false;
+        if (!isDragging) startAutoTimer();
     });
 
     function animateCarousel() {
-        if (autoSpin && !isDragging) {
-            currentRotation += spinSpeed;
+        if (!isDragging) {
+            // Lerp towards target smoothly
+            currentRotation += (targetRotation - currentRotation) * 0.08;
         }
         carouselWrapper.style.transform = `rotateY(${currentRotation}deg)`;
         requestAnimationFrame(animateCarousel);
@@ -369,27 +391,38 @@ if (carouselContainer && carouselWrapper) {
 
     const onPointerDown = (e) => {
         isDragging = true;
-        autoSpin = false;
+        clearInterval(autoTimer);
         startX = e.clientX || (e.touches && e.touches[0].clientX);
+        previousX = startX;
+        rotationBeforeDrag = currentRotation;
         carouselContainer.style.cursor = 'grabbing';
     };
 
     const onPointerMove = (e) => {
         if (!isDragging) return;
         const currentX = e.clientX || (e.touches && e.touches[0].clientX);
-        if (currentX === undefined) return; // Prevent errors
+        if (currentX === undefined) return;
+        
+        dragVelocity = currentX - previousX;
+        previousX = currentX;
         
         const deltaX = currentX - startX;
-        startX = currentX;
-        
-        // Use a multiplier to control swipe sensitivity
-        currentRotation += deltaX * 0.4;
+        // Adjust sensitivity
+        currentRotation = rotationBeforeDrag + deltaX * 0.5;
     };
 
     const onPointerUp = () => {
+        if (!isDragging) return;
         isDragging = false;
-        autoSpin = true;
         carouselContainer.style.cursor = 'grab';
+        
+        // Add momentum to calculate nearest snap
+        let projectedRotation = currentRotation + dragVelocity * 3;
+        targetRotation = Math.round(projectedRotation / 120) * 120;
+        
+        if (!autoSpinHoverBlocked) {
+            startAutoTimer();
+        }
     };
 
     // Mouse Events
