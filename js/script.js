@@ -338,3 +338,67 @@ if (typeof ScrollTrigger !== 'undefined') {
         }
     }
 }
+
+// --- 3D CAROUSEL TOUCH/DRAG INTERACTION --- //
+const carouselContainer = document.querySelector('.carousel-container');
+const carouselWrapper = document.querySelector('.carousel-wrapper');
+
+if (carouselContainer && carouselWrapper) {
+    let currentRotation = 0;
+    let isDragging = false;
+    let startX = 0;
+    
+    // Continuous auto-spin when not dragged or hovered
+    let autoSpin = true;
+    let spinSpeed = -0.15; // degrees per frame
+    
+    // Stop auto-spin on hover for desktop
+    carouselContainer.addEventListener('mouseenter', () => autoSpin = false);
+    carouselContainer.addEventListener('mouseleave', () => {
+        if (!isDragging) autoSpin = true;
+    });
+
+    function animateCarousel() {
+        if (autoSpin && !isDragging) {
+            currentRotation += spinSpeed;
+        }
+        carouselWrapper.style.transform = `rotateY(${currentRotation}deg)`;
+        requestAnimationFrame(animateCarousel);
+    }
+    animateCarousel();
+
+    const onPointerDown = (e) => {
+        isDragging = true;
+        autoSpin = false;
+        startX = e.clientX || (e.touches && e.touches[0].clientX);
+        carouselContainer.style.cursor = 'grabbing';
+    };
+
+    const onPointerMove = (e) => {
+        if (!isDragging) return;
+        const currentX = e.clientX || (e.touches && e.touches[0].clientX);
+        if (currentX === undefined) return; // Prevent errors
+        
+        const deltaX = currentX - startX;
+        startX = currentX;
+        
+        // Use a multiplier to control swipe sensitivity
+        currentRotation += deltaX * 0.4;
+    };
+
+    const onPointerUp = () => {
+        isDragging = false;
+        autoSpin = true;
+        carouselContainer.style.cursor = 'grab';
+    };
+
+    // Mouse Events
+    carouselContainer.addEventListener('mousedown', onPointerDown);
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('mouseup', onPointerUp);
+
+    // Touch Events
+    carouselContainer.addEventListener('touchstart', onPointerDown, { passive: true });
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('touchend', onPointerUp);
+}
